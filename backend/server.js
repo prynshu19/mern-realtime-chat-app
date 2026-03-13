@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connnectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const protect = require("./middleware/authMiddleware");
 
 const app = express();
 
@@ -16,13 +17,14 @@ app.use(cors());
 // Use Middleware to Parse req Body content
 app.use(express.json());
 
-// Home Route
-app.get("/", (req, res) => {
-  res.send("Home");
-});
-
-// Signup Route
 app.use("/api/auth", authRoutes);
+
+app.get("/api/protected", protect, (req, res) => {
+  res.json({
+    message: "Protected route accessed",
+    userId: req.user,
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 

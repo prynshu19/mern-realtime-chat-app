@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const connnectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const protect = require("./middleware/authMiddleware");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -17,7 +18,11 @@ app.use(cors());
 // Use Middleware to Parse req Body content
 app.use(express.json());
 
+// Auth Routes
 app.use("/api/auth", authRoutes);
+
+// Users Routes
+app.use("/api/users", userRoutes);
 
 app.get("/api/protected", protect, (req, res) => {
   res.json({

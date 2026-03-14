@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   searchUsers,
   sendFriendRequest,
+  acceptFriendRequest,
 } = require("../controllers/userController");
 
 const protect = require("../middleware/authMiddleware");
@@ -13,5 +14,8 @@ router.get("/search", protect, searchUsers);
 
 // Friend request route
 router.post("/send-request/:id", protect, sendFriendRequest);
+
+// Friend request Accept request route
+router.post("/accept-request/:id", protect, acceptFriendRequest);
 
 module.exports = router;

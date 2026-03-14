@@ -63,3 +63,46 @@ exports.sendFriendRequest = async (req, res) => {
     });
   }
 };
+
+// Accept Friend Request
+exports.acceptFriendRequest = async (req, res) => {
+  try {
+    const senderUserId = req.params.id;
+    const currentUserId = req.user;
+    console.log("senderUserId:", senderUserId);
+    console.log("currentUserId:", currentUserId);
+
+    const sender = await User.findById(senderUserId);
+    const currentUser = await User.findById(currentUserId);
+
+    if (!sender || !currentUser) {
+      return res.status(404).json({
+        message: "User not Found",
+      });
+    }
+
+    if (!currentUser.friendRequests.includes(senderUserId)) {
+      return res.status(400).json({
+        message: "No Friend Request from this User",
+      });
+    }
+
+    currentUser.friendRequests = currentUser.friendRequests.filter(
+      (id) => id.toString() !== senderUserId,
+    );
+
+    currentUser.friends.push(senderUserId);
+    sender.friends.push(currentUserId);
+
+    await currentUser.save();
+    await sender.save();
+
+    res.json({
+      message: "Friend Request accepted",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Some error occurred while accepting friend request",
+    });
+  }
+};

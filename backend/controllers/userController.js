@@ -3,6 +3,7 @@ const User = require("../models/User");
 //   Search users
 exports.searchUsers = async (req, res) => {
   try {
+    // Create a search keyword based on the query parameter
     const keyword = req.query.search
       ? {
           username: {
@@ -12,10 +13,10 @@ exports.searchUsers = async (req, res) => {
         }
       : {};
 
+    // Find users matching the keyword, excluding the current user and selecting all fields except password
     const users = await User.find(keyword)
       .find({ _id: { $ne: req.user } })
       .select("-password");
-    console.log("users:", users);
 
     res.json(users);
   } catch (err) {
@@ -28,32 +29,39 @@ exports.searchUsers = async (req, res) => {
 // Friend Request
 exports.sendFriendRequest = async (req, res) => {
   try {
+    // Get receiver and sender IDs
     const receiverId = req.params.id;
     const senderId = req.user;
 
+    // Check if sender is trying to send a friend request to themselves
     if (receiverId === senderId) {
       return res.status(400).json({
         message: "Error, You can't send request to Yourself",
       });
     }
 
+    // Find the receiver in the database
     const receiver = await User.findById(receiverId);
 
+    // Check if receiver exists
     if (!receiver) {
       return res.status(404).json({
         message: "User not found",
       });
     }
 
+    //  Check if a friend request has already been sent
     if (receiver.friendRequests.includes(senderId)) {
       return res.status(400).json({
         message: "Request already sent",
       });
     }
 
+    // Add sender's ID to the receiver's friend requests and save the receiver
     receiver.friendRequests.push(senderId);
     await receiver.save();
 
+    // Return success response
     res.json({
       message: "Friend request sent",
     });
@@ -132,7 +140,7 @@ exports.rejectFriendRequest = async (req, res) => {
     // Check if there is a friend request from the sender to the current user
     if (!currentUser.friendRequests.includes(senderId)) {
       return res.status(400).json({
-        message: "You don't have any request from this User",
+        message: "No friend request from this User",
       });
     }
 
@@ -147,6 +155,30 @@ exports.rejectFriendRequest = async (req, res) => {
     return res.json({
       message: "Request rejected Successfully",
     });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+// Get Friends List
+exports.getFriendRequests = async (req, res) => {
+  try {
+    const currentUserId = req.user;
+
+    const currentUser = await User.findById(currentUserId).populate(
+      "friendRequests",
+      "name email username",
+    );
+
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not Found" });
+    }
+    console.log("Current User:", currentUser);
+    const friendRequests = await currentUser.friendRequests;
+    console.log(friendRequests);
+    return res.json(friendRequests);
   } catch (err) {
     return res.status(500).json({
       message: err.message,

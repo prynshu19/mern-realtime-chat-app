@@ -5,6 +5,7 @@ const {
   searchUsers,
   sendFriendRequest,
   acceptFriendRequest,
+  rejectFriendRequest,
 } = require("../controllers/userController");
 
 const protect = require("../middleware/authMiddleware");
@@ -17,5 +18,8 @@ router.post("/send-request/:id", protect, sendFriendRequest);
 
 // Friend request Accept request route
 router.post("/accept-request/:id", protect, acceptFriendRequest);
+
+// Friend request Reject request route
+router.post("/reject-request/:id", protect, rejectFriendRequest);
 
 module.exports = router;

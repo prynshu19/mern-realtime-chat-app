@@ -42,9 +42,11 @@ exports.sendMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   try {
+    // Get the other user's ID from the request parameters and the current user's ID from the authenticated user
     const otherUserId = req.params.userId;
     const currentUserId = req.user;
 
+    // Collect all messages between the current user and the other user, sorted by creation time
     const messages = await Message.find({
       $or: [
         { sender: currentUserId, reciver: otherUserId },

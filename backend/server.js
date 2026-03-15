@@ -5,6 +5,7 @@ const connnectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const protect = require("./middleware/authMiddleware");
 const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.use("/api/auth", authRoutes);
 
 // Users Routes
 app.use("/api/users", userRoutes);
+
+// Message Routes
+app.use("/api/messages/", messageRoutes);
 
 app.get("/api/protected", protect, (req, res) => {
   res.json({

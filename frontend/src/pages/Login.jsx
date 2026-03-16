@@ -26,7 +26,12 @@ const Login = () => {
     try {
       const { data } = await API.post("/auth/login", form);
 
-      dispatch(setUser(data));
+      dispatch(
+        setUser({
+          user: data.user,
+          token: data.token,
+        }),
+      );
 
       navigate("/");
     } catch (err) {
